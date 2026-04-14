@@ -3,9 +3,9 @@ package services;
 import lombok.Data;
 import models.Venta;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.text.CollationElementIterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Data
 public class ConsultasVenta {
@@ -69,6 +69,52 @@ public class ConsultasVenta {
                 .toList();
     }
 
+    /**
+     * Facturacion total de ventas
+     * @return
+     */
+    public double getFacuturacionTotal(){
+        return ventas.stream()
+                .mapToDouble(Venta::getTotalLinea)
+                .sum();
+    }
+
+    /**
+     * Estadisticas del precio unitario
+     * @return
+     */
+    public DoubleSummaryStatistics getEstadisticasPrecioUnitario(){
+        return ventas.stream()
+                .collect(Collectors.summarizingDouble(Venta::getPrecioUnitario));
+    }
+
+    /**
+     * Devuelve las ventas agrupadas por categoria y las cuenta cuantas hay de cada una
+     * @return
+     */
+    public Map<String,Long> getNumeroDeVentasPorCategoria(){
+        return ventas.stream()
+                .collect(Collectors.groupingBy(Venta::getCategoria,
+                        Collectors.counting()));
+    }
+    /**
+     * Ventas agrupadas por país. Muestra país y total facturación de ese país
+     * @return
+     */
+    public Map<String,Double> getFacturacionTotalPais(){
+        return ventas.stream()
+                .collect(Collectors.groupingBy(Venta::getPais,Collectors.summingDouble(Venta::getTotalLinea)));
+
+    }
+    /**
+     * Número de ventas agrupadas por método de pago
+     * @return
+     */
+    public Map<String, Long> getNumeroVentasPorMetodoPago() {
+        return ventas.stream()
+                .collect(Collectors.groupingBy(Venta::getMetodoPago,
+                        Collectors.counting()));
+    }
 
 
 
